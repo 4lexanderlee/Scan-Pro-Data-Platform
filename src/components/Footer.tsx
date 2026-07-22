@@ -8,33 +8,33 @@ const Footer = () => {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
-                <span className="text-lg font-bold text-primary-foreground">D</span>
+                <span className="text-lg font-bold text-primary-foreground">S</span>
               </div>
-              <span className="text-lg font-bold">DataLab Pro</span>
+              <span className="text-lg font-bold">Scan Pro</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Plataforma profesional para ciencia de datos y machine learning.
+              Plataforma No-Code gratuita para análisis exploratorio de datos y consultas SQL en tiempo real.
             </p>
           </div>
-          
+
           <div>
             <h4 className="font-semibold mb-4">Producto</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Features</a></li>
+              <li><a href="#features" className="hover:text-foreground transition-colors">Features</a></li>
               <li><a href="#" className="hover:text-foreground transition-colors">Pricing</a></li>
               <li><a href="#" className="hover:text-foreground transition-colors">Casos de uso</a></li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="font-semibold mb-4">Recursos</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><a href="#" className="hover:text-foreground transition-colors">Documentación</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">API Reference</a></li>
-              <li><a href="#" className="hover:text-foreground transition-colors">Tutoriales</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Documentación SQL</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Tutoriales EDA</a></li>
+              <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="font-semibold mb-4">Comunidad</h4>
             <div className="flex gap-4">
@@ -50,9 +50,9 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-          <p>© 2025 DataLab Pro. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} Scan Pro. Todos los derechos reservados.</p>
           <div className="flex gap-6">
             <a href="#" className="hover:text-foreground transition-colors">Privacidad</a>
             <a href="#" className="hover:text-foreground transition-colors">Términos</a>

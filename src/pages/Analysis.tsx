@@ -4,7 +4,6 @@ import Navbar from "@/components/Navbar";
 import FileUpload from "@/components/analysis/FileUpload";
 import DataPreview from "@/components/analysis/DataPreview";
 import VisualizationPanel from "@/components/analysis/VisualizationPanel";
-import ModelingPanel from "@/components/analysis/ModelingPanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export interface DatasetInfo {
@@ -19,7 +18,6 @@ const Analysis = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [dataset, setDataset] = useState<DatasetInfo | null>(location.state?.dataset || null);
-  const projectId = location.state?.projectId as string | undefined;
   const projectName = location.state?.projectName as string | undefined;
   const projectDescription = location.state?.projectDescription as string | undefined;
 
@@ -45,17 +43,13 @@ const Analysis = () => {
               Análisis de Datos
             </h1>
             {projectName && (
-              <p className="text-lg font-semibold mb-1">
-                {projectName}
-              </p>
+              <p className="text-lg font-semibold mb-1">{projectName}</p>
             )}
             {projectDescription && (
-              <p className="text-sm text-muted-foreground mb-2">
-                {projectDescription}
-              </p>
+              <p className="text-sm text-muted-foreground mb-2">{projectDescription}</p>
             )}
             <p className="text-muted-foreground">
-              Obtén análisis estadísticos, visualizaciones y predicciones
+              Explora, limpia y visualiza tus datos de forma interactiva
             </p>
           </div>
 
@@ -64,19 +58,12 @@ const Analysis = () => {
           ) : (
             <div className="space-y-6">
               <DataPreview dataset={dataset} onClear={() => setDataset(null)} />
-              
               <Tabs defaultValue="visualization" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-1">
                   <TabsTrigger value="visualization">Visualizaciones</TabsTrigger>
-                  <TabsTrigger value="modeling">Modelado</TabsTrigger>
                 </TabsList>
-                
                 <TabsContent value="visualization" className="mt-6">
                   <VisualizationPanel dataset={dataset} />
-                </TabsContent>
-                
-                <TabsContent value="modeling" className="mt-6">
-                  <ModelingPanel dataset={dataset} projectId={projectId} />
                 </TabsContent>
               </Tabs>
             </div>
