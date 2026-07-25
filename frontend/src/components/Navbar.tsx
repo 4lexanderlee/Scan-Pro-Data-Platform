@@ -1,16 +1,43 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogIn } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AuthModal from "@/components/auth/AuthModal";
+import { supabase } from "@/lib/supabase";
+import { Session } from "@supabase/supabase-js";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [authTab, setAuthTab] = useState<"login" | "register" | "recover">("login");
+  const [session, setSession] = useState<Session | null>(null);
 
-  const isLoggedIn = !!localStorage.getItem("currentUser");
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (location.state?.openAuth) {
+      setAuthTab("login");
+      setAuthOpen(true);
+      // Clean up the state so it doesn't trigger again on reload
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  const isLoggedIn = !!session;
 
   const openAuth = (tab: "login" | "register" = "login") => {
     if (isLoggedIn) {

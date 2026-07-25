@@ -1,0 +1,9 @@
+FROM oven/bun:1-alpine
+WORKDIR /app
+COPY package.json bun.lockb ./
+RUN bun install
+COPY . .
+# Exponemos el puerto de Vite
+EXPOSE 5173
+# Ejecutamos con --host para que sea accesible fuera del contenedor
+CMD ["bun", "run", "dev", "--host"]

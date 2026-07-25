@@ -8,6 +8,7 @@ import Analysis from "./pages/Analysis";
 import DataCleaning from "./pages/DataCleaning";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -19,9 +20,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/analysis" element={<Analysis />} />
-          <Route path="/cleaning" element={<DataCleaning />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
+          <Route path="/cleaning" element={<ProtectedRoute><DataCleaning /></ProtectedRoute>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

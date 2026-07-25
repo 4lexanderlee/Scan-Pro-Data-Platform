@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  BarChart3,
   LogOut,
   Plus,
   Trash2,
@@ -30,6 +29,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import Workspace from "@/components/workspace/Workspace";
+import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 
 const MAX_PROJECTS = 5;
 
@@ -44,7 +45,7 @@ interface Project {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [projects, setProjects] = useState<Project[]>([]);
   const [isNewProjectOpen, setIsNewProjectOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
@@ -52,18 +53,17 @@ const Dashboard = () => {
   const [activeProject, setActiveProject] = useState<Project | null>(null);
 
   useEffect(() => {
-    const currentUser = localStorage.getItem("currentUser");
-    if (!currentUser) {
-      navigate("/");
-      return;
-    }
-    setUser(JSON.parse(currentUser));
+    // Get user from Supabase
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+    });
+
     const savedProjects = JSON.parse(localStorage.getItem("projects") || "[]");
     setProjects(savedProjects);
-  }, [navigate]);
+  }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     toast({
       title: "Sesión cerrada",
       description: "Has cerrado sesión correctamente.",
@@ -138,7 +138,7 @@ const Dashboard = () => {
               <h1 className="text-xl font-bold leading-none">Scan Pro</h1>
               <p className="text-sm text-muted-foreground mt-0.5">
                 Bienvenido/a,{" "}
-                <span className="text-foreground font-medium">{user.name}</span>
+                <span className="text-foreground font-medium">{user.user_metadata?.nickname || 'Usuario'}</span>
               </p>
             </div>
           </div>

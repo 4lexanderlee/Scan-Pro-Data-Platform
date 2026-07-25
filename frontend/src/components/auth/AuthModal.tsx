@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +42,7 @@ const AuthModal = ({ open, onOpenChange, defaultTab = "login" }: AuthModalProps)
   // --- Recover state ---
   const [recoverEmail, setRecoverEmail] = useState("");
   const [recoverSent, setRecoverSent] = useState(false);
+  const [recoverLoading, setRecoverLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!loginEmail || !loginPassword) {
@@ -48,13 +50,15 @@ const AuthModal = ({ open, onOpenChange, defaultTab = "login" }: AuthModalProps)
       return;
     }
     setLoginLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    const users: any[] = JSON.parse(localStorage.getItem("users") || "[]");
-    const match = users.find(
-      (u) => u.email === loginEmail && u.password === loginPassword
-    );
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
+    });
+
     setLoginLoading(false);
-    if (!match) {
+
+    if (error) {
       toast({
         title: "Credenciales incorrectas",
         description: "Revisa tu email o contraseña.",
@@ -62,8 +66,9 @@ const AuthModal = ({ open, onOpenChange, defaultTab = "login" }: AuthModalProps)
       });
       return;
     }
-    localStorage.setItem("currentUser", JSON.stringify(match));
-    toast({ title: `¡Bienvenido/a de nuevo, ${match.name}! 👋` });
+
+    const userName = data.user?.user_metadata?.nickname || "Usuario";
+    toast({ title: `¡Bienvenido/a de nuevo, ${userName}! 👋` });
     onOpenChange(false);
     navigate("/dashboard");
   };
@@ -82,32 +87,63 @@ const AuthModal = ({ open, onOpenChange, defaultTab = "login" }: AuthModalProps)
       return;
     }
     setRegLoading(true);
-    await new Promise((r) => setTimeout(r, 600));
-    const users: any[] = JSON.parse(localStorage.getItem("users") || "[]");
-    if (users.find((u) => u.email === regEmail)) {
-      setRegLoading(false);
+
+    const { data, error } = await supabase.auth.signUp({
+      email: regEmail,
+      password: regPassword,
+      options: {
+        data: {
+          nickname: regName,
+        },
+      },
+    });
+
+    setRegLoading(false);
+
+    if (error) {
       toast({
+        title: "Error al registrar",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+       toast({
         title: "Email ya registrado",
         description: "Intenta iniciar sesión.",
         variant: "destructive",
       });
       return;
     }
-    const newUser = { id: Date.now().toString(), name: regName, email: regEmail, password: regPassword };
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-    localStorage.setItem("currentUser", JSON.stringify(newUser));
-    setRegLoading(false);
+
     toast({ title: `¡Cuenta creada! Bienvenido/a, ${regName} 🚀` });
     onOpenChange(false);
     navigate("/dashboard");
   };
 
-  const handleRecover = () => {
+  const handleRecover = async () => {
     if (!recoverEmail) {
       toast({ title: "Ingresa tu email." });
       return;
     }
+    
+    setRecoverLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(recoverEmail, {
+      redirectTo: `${window.location.origin}/update-password`,
+    });
+    setRecoverLoading(false);
+
+    if (error) {
+      toast({
+        title: "Error al enviar",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setRecoverSent(true);
     toast({
       title: "Enlace enviado",
@@ -305,9 +341,15 @@ const AuthModal = ({ open, onOpenChange, defaultTab = "login" }: AuthModalProps)
                       className="bg-muted/30"
                     />
                   </div>
-                  <Button className="w-full gap-2 mt-2" onClick={handleRecover}>
-                    Enviar enlace de recuperación
-                    <ArrowRight className="h-4 w-4" />
+                  <Button className="w-full gap-2 mt-2" onClick={handleRecover} disabled={recoverLoading}>
+                    {recoverLoading ? (
+                      <span className="animate-pulse">Enviando...</span>
+                    ) : (
+                      <>
+                        Enviar enlace de recuperación
+                        <ArrowRight className="h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 </>
               )}
