@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
+from app.api import upload
 
 app = FastAPI(
     title="ScanPro API",
@@ -24,6 +21,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# "Enchufamos" nuestro router a la aplicación principal.
+# Le ponemos el prefijo "/api" para que la ruta final sea "http://localhost:8000/api/upload"
+app.include_router(upload.router, prefix="/api", tags=["Ingesta de datos"])
 
 @app.get("/")
 def health_check():
